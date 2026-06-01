@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    platform: linux/arm64
+    container_name: rebellen_postgres
+    restart: always
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: rebellen
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
