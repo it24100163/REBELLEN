@@ -13,6 +13,10 @@ function AdminPage() {
   const [color, setColor] = useState("")
   const [image, setImage] = useState("")
   const [editingId, setEditingId] = useState(null)
+  const [category, setCategory] = useState("")
+  const [stockM, setStockM] = useState(0)
+  const [stockL, setStockL] = useState(0)
+  const [stockXL, setStockXL] = useState(0)
 
   const fetchProducts = () => {
     axios.get("http://127.0.0.1:8000/products/")
@@ -42,7 +46,8 @@ function AdminPage() {
         description,
         price: Number(price),
         color,
-        image
+        image,
+        category,
       })
 
       alert("Product Added")
@@ -52,6 +57,8 @@ function AdminPage() {
       setPrice("")
       setColor("")
       setImage("")
+      setCategory("")
+      
 
       fetchProducts()
     } catch (error) {
@@ -79,6 +86,10 @@ function AdminPage() {
     setPrice(product.price)
     setColor(product.color)
     setImage(product.image)
+    setCategory(product.category || "")
+    setStockM(product.stock_m || 0)
+    setStockL(product.stock_l || 0)
+    setStockXL(product.stock_xl || 0)
   }
 
   const updateProduct = async () => {
@@ -88,7 +99,11 @@ function AdminPage() {
         description,
         price: Number(price),
         color,
-        image
+        image,
+        category,
+        stock_m: Number(stockM),
+        stock_l: Number(stockL),
+        stock_xl: Number(stockXL),
       })
 
       alert("Product Updated")
@@ -100,6 +115,10 @@ function AdminPage() {
       setPrice("")
       setColor("")
       setImage("")
+      setCategory("")
+      setStockM(0)
+      setStockL(0)
+      setStockXL(0)
 
       fetchProducts()
     } catch (error) {
@@ -119,6 +138,13 @@ function AdminPage() {
         className="inline-block mb-10 border border-white px-6 py-3 hover:bg-white hover:text-black transition"
       >
         VIEW ORDERS
+      </Link>
+
+      <Link
+        to="/admin/messages"
+        className="inline-block mb-10 ml-4 border border-black px-6 py-3 hover:bg-black hover:text-white transition"
+      >
+        VIEW MESSAGES
       </Link>
 
       <div className="max-w-2xl space-y-5 mb-20">
@@ -160,6 +186,48 @@ function AdminPage() {
           onChange={(e) => setImage(e.target.value)}
           className="w-full bg-black border border-white/20 p-4 outline-none"
         />
+
+        <select
+         value={category}
+         onChange={(e) => setCategory(e.target.value)}
+         className="w-full bg-black border border-white/20 p-4 outline-none"
+         required
+        >
+         <option value="">Select Category</option>
+         <option value="street-legends">Unisex Oversized Street Legends Tee</option>
+         <option value="cartoons">Unisex Oversized Cartoons Tee</option>
+         <option value="anime">Unisex Oversized Anime Tee</option>
+         <option value="bottom-pants">Unisex Bottom Pants</option>
+        </select>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+  <input
+    type="number"
+    placeholder="M Stock"
+    value={stockM}
+    onChange={(e) => setStockM(e.target.value)}
+    className="w-full bg-black border border-white/20 p-4 outline-none"
+    min="0"
+  />
+
+  <input
+    type="number"
+    placeholder="L Stock"
+    value={stockL}
+    onChange={(e) => setStockL(e.target.value)}
+    className="w-full bg-black border border-white/20 p-4 outline-none"
+    min="0"
+  />
+
+  <input
+    type="number"
+    placeholder="XL Stock"
+    value={stockXL}
+    onChange={(e) => setStockXL(e.target.value)}
+    className="w-full bg-black border border-white/20 p-4 outline-none"
+    min="0"
+  />
+</div>
 
         <button
           onClick={editingId ? updateProduct : addProduct}

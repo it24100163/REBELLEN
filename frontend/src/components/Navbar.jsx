@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { FiUser, FiHeart, FiShoppingBag, FiMenu } from "react-icons/fi"
 import { useLocation, Link } from "react-router-dom"
+import logo from "../assets/logo.png"
 
 function Navbar() {
   const location = useLocation()
@@ -8,14 +9,19 @@ function Navbar() {
   const [user, setUser] = useState(sessionStorage.getItem("user"))
   const [cartCount, setCartCount] = useState(0)
   const [wishlistCount, setWishlistCount] = useState(0)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [categoryOpen, setCategoryOpen] = useState(false)
+  const menuRef = useRef(null)
+
   const role = sessionStorage.getItem("role")
+
   const authPage =
     location.pathname === "/login" ||
     location.pathname === "/register"
 
   const updateNavbar = () => {
-    const cart = JSON.parse(localStorage.getItem("cart")) || []
-    const wishlist = JSON.parse(localStorage.getItem("wishlist")) || []
+    const cart = JSON.parse(localStorage.getItem("cart") || "[]")
+    const wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]")
 
     setUser(sessionStorage.getItem("user"))
     setCartCount(cart.length)
@@ -32,42 +38,71 @@ function Navbar() {
     }
   }, [])
 
-  const logout = () => {
-    sessionStorage.removeItem("user")
-    sessionStorage.removeItem("email")
-    sessionStorage.removeItem("role")
+  useEffect(() => {
+  const handleClickOutside = (event) => {
+    if (
+      menuRef.current &&
+      !menuRef.current.contains(event.target)
+    ) {
+      setMenuOpen(false)
+      setCategoryOpen(false)
+    }
+  }
 
+  document.addEventListener("mousedown", handleClickOutside)
+
+  return () => {
+    document.removeEventListener(
+      "mousedown",
+      handleClickOutside
+    )
+  }
+}, [])
+
+  useEffect(() => {
+    updateNavbar()
+    setMenuOpen(false)
+    setCategoryOpen(false)
+  }, [location.pathname])
+
+  const closeMenu = () => {
+  setMenuOpen(false)
+  setCategoryOpen(false)
+}
+
+  const logout = () => {
+    sessionStorage.clear()
     window.dispatchEvent(new Event("navbarUpdate"))
-    window.location.href = "/login"
+    window.location.replace("/login")
   }
 
   if (role === "admin") {
-  return null
-}
+    return null
+  }
 
   return (
-   <nav className="fixed top-0 left-0 w-full z-50 bg-black text-white px-8 py-8">
+    <nav className="fixed top-0 left-0 w-full z-50 bg-black text-white px-8 py-4">
       {authPage ? (
-        <div className="w-full">
-          <Link
-            to="/"
-            className="text-2xl font-bold tracking-[8px]"
-          >
-            REBELLEN
-          </Link>
-        </div>
-      ) : (
+  <div className="flex items-center justify-between">
+    <Link to="/">
+      <img
+        src={logo}
+        alt="REBELLEN"
+        className="h-12 md:h-18 w-72 object-fill -ml-3"
+      />
+    </Link>
+  </div>
+) : (
         <div className="flex items-center justify-between">
-
-          <Link
-            to="/"
-            className="text-2xl font-bold tracking-[8px]"
-          >
-            REBELLEN
+          <Link to="/">
+            <img
+              src={logo}
+              alt="REBELLEN"
+              className="h-12 md:h-18 w-72 object-fill -ml-3"
+            />
           </Link>
 
           <div className="flex items-center gap-6">
-
             <Link
               to={user ? "/account" : "/login"}
               className="hover:text-gray-300 transition"
@@ -106,9 +141,99 @@ function Navbar() {
               </span>
             </Link>
 
-            <button className="hover:text-gray-300 transition">
-              <FiMenu size={28} />
-            </button>
+            
+            <div 
+              className="relative"
+              ref={menuRef}
+            >
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="hover:text-gray-300 transition"
+              >
+                <FiMenu size={28} />
+              </button>
+
+              {menuOpen && (
+                <div className="absolute right-0 top-12 w-80 bg-white text-black shadow-xl border z-50">
+                  <button
+                    onClick={() => setCategoryOpen(!categoryOpen)}
+                    className="w-full text-left px-5 py-3 font-semibold hover:bg-gray-100"
+                  >
+                    Category
+                  </button>
+
+                  {categoryOpen && (
+                    <div className="bg-gray-50">
+                      <Link
+                        to="/?category=street-legends"
+                        onClick={closeMenu}
+                        className="block px-8 py-3 hover:bg-gray-100"
+                      >
+                        Unisex Oversized Street Legends Tee
+                      </Link>
+
+                      <Link
+                        to="/?category=cartoons"
+                        onClick={closeMenu}
+                        className="block px-8 py-3 hover:bg-gray-100"
+                      >
+                        Unisex Oversized Cartoons Tee
+                      </Link>
+
+                      <Link
+                        to="/?category=anime"
+                        onClick={closeMenu}
+                        className="block px-8 py-3 hover:bg-gray-100"
+                      >
+                        Unisex Oversized Anime Tee
+                      </Link>
+
+                      <Link
+                        to="/?category=bottom-pants"
+                        onClick={closeMenu}
+                        className="block px-8 py-3 hover:bg-gray-100"
+                      >
+                        Unisex Bottom Pants
+                      </Link>
+                    </div>
+                  )}
+
+                  <Link
+                    to="/"
+                    onClick={closeMenu}
+                    className="block px-5 py-3 font-semibold hover:bg-gray-100"
+                  >
+                    Home
+                  </Link>
+
+                  <Link
+                    to="/about"
+                    onClick={closeMenu}
+                    className="block px-5 py-3 font-semibold hover:bg-gray-100"
+                  >
+                    About
+                  </Link>
+
+                  <Link
+                    to="/wishlist"
+                    onClick={closeMenu}
+                    className="block px-5 py-3 font-semibold hover:bg-gray-100"
+                  >
+                    Wishlist
+                  </Link>
+
+                  <Link
+                    to="/my-orders"
+                    onClick={closeMenu}
+                    className="block px-5 py-3 font-semibold hover:bg-gray-100"
+                  >
+                    My Orders
+                  </Link>
+
+
+                </div>
+              )}
+            </div>
 
             {user && (
               <button
@@ -118,11 +243,9 @@ function Navbar() {
                 Logout
               </button>
             )}
-
           </div>
         </div>
       )}
-
     </nav>
   )
 }

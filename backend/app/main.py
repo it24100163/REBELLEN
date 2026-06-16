@@ -4,15 +4,22 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine, Base
 from app.routes.product_routes import router as product_router
 from app.routes.user_routes import router as user_router
+from app.routes.order_routes import router as order_router
+from app.routes import contact_routes
+from app.routes import size_ai_routes
+
 from app.models.user import User
 from app.models.order import Order
-from app.routes.order_routes import router as order_router
+from app.models import contact
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -38,9 +45,12 @@ app.include_router(
     tags=["Orders"]
 )
 
+app.include_router(size_ai_routes.router)
+
+app.include_router(contact_routes.router)
+
 @app.get("/")
 def home():
-
     return {
         "message": "REBELLEN Backend Running"
     }

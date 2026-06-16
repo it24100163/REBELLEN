@@ -4,17 +4,14 @@ function AccountPage() {
 
   const navigate = useNavigate()
 
-  const username = localStorage.getItem("user")
-  const email = localStorage.getItem("email")
+  const username = sessionStorage.getItem("user")
+  const email = sessionStorage.getItem("email")
 
   const logout = () => {
-
-    localStorage.removeItem("user")
-    localStorage.removeItem("email")
-
-    navigate("/login")
-
-  }
+  sessionStorage.clear()
+  window.dispatchEvent(new Event("navbarUpdate"))
+  window.location.replace("/login")
+}
 
   return (
 

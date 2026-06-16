@@ -22,63 +22,70 @@ function CheckoutPage() {
   const grandTotal = total + deliveryCharge
 
   const placeOrder = async () => {
-    if (!paymentMethod) {
-      alert("Please select a payment method")
-      return
-    }
-    if (!name.trim()) {
-  alert("Please enter your full name")
-  return
-}
-
-if (!phone.trim()) {
-  alert("Please enter your phone number")
-  return
-}
-
-if (!address.trim()) {
-  alert("Please enter your delivery address")
-  return
-}
-
-if (!paymentMethod) {
-  alert("Please select a payment method")
-  return
-}
-    try {
-      const response = await axios.post("http://127.0.0.1:8000/orders/", {
-        customer_name: name,
-        phone,
-        address,
-        total: grandTotal,
-        items: JSON.stringify(cart),
-        payment_method: paymentMethod
-      })
-
-      alert(response.data.message)
-
-      localStorage.removeItem("cart")
-      setCart([])
-
-      navigate("/")
-    } catch (error) {
-      console.log(error)
-      alert("Order failed")
-    }
+  if (!paymentMethod) {
+    alert("Please select a payment method")
+    return
   }
 
-  return (
-    <div className="min-h-screen bg-white text-black pt-32 px-10">
-      <Link to="/cart" className="text-gray-600 hover:text-black">
-        ← Back to Cart
-      </Link>
+  if (!name.trim()) {
+    alert("Please enter your full name")
+    return
+  }
 
-      <h1 className="text-5xl font-black my-10">
+  if (!phone.trim()) {
+    alert("Please enter your phone number")
+    return
+  }
+
+  if (!address.trim()) {
+    alert("Please enter your delivery address")
+    return
+  }
+
+  try {
+    const response = await axios.post("http://127.0.0.1:8000/orders/", {
+      customer_name: name,
+      phone,
+      address,
+      total: grandTotal,
+      items: JSON.stringify(cart),
+      payment_method: paymentMethod,
+      customer_email: sessionStorage.getItem("email"),
+    })
+
+    for (const item of cart) {
+      await axios.put(`http://127.0.0.1:8000/products/${item.id}/reduce-stock`, {
+        size: item.selectedSize,
+        quantity: item.quantity || 1,
+      })
+    }
+
+    alert(response.data.message)
+
+    localStorage.removeItem("cart")
+    setCart([])
+    window.dispatchEvent(new Event("navbarUpdate"))
+
+    navigate("/")
+  } catch (error) {
+    console.log(error)
+    alert(error.response?.data?.detail || "Order failed")
+  }
+}
+  return (
+    <div className="min-h-screen bg-white text-black pt-16 px-10">
+
+  <Link
+    to="/cart"
+    className="text-gray-600 hover:text-black"
+  >
+    ← Back to Cart
+  </Link>
+      <h1 className="text-5xl font-black mt-6 mb-8">
         CHECKOUT
       </h1>
 
-      <div className="max-w-2xl bg-white border border-gray-200 rounded-lg shadow-sm p-8 space-y-5">
-
+      <div className="w-full max-w-5xl bg-white border border-gray-200 rounded-lg shadow-sm p-8 space-y-5">
         <input
           type="text"
           placeholder="Full Name"

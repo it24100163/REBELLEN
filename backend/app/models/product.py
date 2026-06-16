@@ -16,3 +16,11 @@ class Product(Base):
     color = Column(String, nullable=False)
 
     image = Column(String, nullable=True)
+
+    category = Column(String, nullable=False, default="street-legends")
+
+    stock_m = Column(Integer, nullable=False, default=0)
+
+    stock_l = Column(Integer, nullable=False, default=0)
+
+    stock_xl = Column(Integer, nullable=False, default=0)

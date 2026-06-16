@@ -107,7 +107,7 @@ const deleteOrder = async (id) => {
   Object.values(
   JSON.parse(order.items).reduce((acc, item) => {
 
-    const key = `${item.id}-${item.selectedSize}`
+    const key = `${item.id}-${item.selectedSize}-${item.wantQR}-${item.socialLink || ""}`
 
     if (acc[key]) {
       acc[key].quantity += 1
@@ -131,18 +131,21 @@ const deleteOrder = async (id) => {
           {item.name}
         </p>
 
-        {item.wantQR && (
+        {item.wantQR ? (
   <>
     <p className="text-sm text-gray-500">
       QR Print: Yes
     </p>
 
-    <p className="text-sm text-gray-500">
+    <p className="text-sm text-gray-500 break-all">
       QR Link: {item.socialLink}
     </p>
   </>
+) : (
+  <p className="text-sm text-gray-500">
+    QR Print: No
+  </p>
 )}
-
         <p className="text-sm text-gray-500">
           Size: {item.selectedSize}
         </p>

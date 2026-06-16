@@ -30,7 +30,7 @@ function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-black p-10 flex items-center justify-center">
+    <div className="min-h-screen bg-white text-black pt-32 px-10 pb-10 flex items-center justify-center">
       <div className="w-full max-w-md bg-white border border-black p-8 rounded-lg shadow-lg">
 
         <h1 className="text-4xl font-black mb-8">

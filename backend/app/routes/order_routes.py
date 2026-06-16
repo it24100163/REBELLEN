@@ -15,6 +15,7 @@ class OrderCreate(BaseModel):
     items: str
     social_link: str | None = None
     payment_method: str
+    customer_email: str | None = None
 
 @router.put("/{order_id}")
 def update_order_status(order_id: int):
@@ -61,7 +62,8 @@ def create_order(order: OrderCreate):
         status="Pending",
         items=order.items,
         social_link=order.social_link,
-        payment_method=order.payment_method
+        payment_method=order.payment_method,
+        customer_email=order.customer_email,
     )
 
     db.add(new_order)
@@ -74,7 +76,18 @@ def create_order(order: OrderCreate):
 @router.get("/")
 def get_orders():
     db: Session = SessionLocal()
-    orders = db.query(Order).all()
+    orders = db.query(Order).filter(Order.admin_deleted == False).all()
+    db.close()
+    return orders
+
+@router.get("/customer/{email}")
+def get_customer_orders(email: str):
+    db = SessionLocal()
+
+    orders = db.query(Order).filter(
+        Order.customer_email == email
+    ).order_by(Order.created_at.desc()).all()
+
     db.close()
     return orders
 
@@ -86,9 +99,9 @@ def delete_order(order_id: int):
 
     if order is None:
         db.close()
-        return {"message": "Order not found"}
-
-    db.delete(order)
+        return {"message": "Order removed from admin panel"}
+    order.admin_deleted = True
+    db.commit()
     db.commit()
     db.close()
 
